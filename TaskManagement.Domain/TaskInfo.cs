@@ -2,7 +2,7 @@
 
 namespace TaskManagement.Domain;
 
-public class Task
+public class TaskInfo
 {
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();

@@ -1,6 +1,5 @@
 using System.Text;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -29,15 +28,17 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers();
 
 // FluentValidation (Updated Approach)
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<UserCommandValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<TeamValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<TaskInfoValidator>();
 
 // Database Configuration
 builder.Services.AddDbContext<TaskDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure()
+    )
+);
 
 // Authentication Configuration
 builder.Services.AddAuthentication(options =>

@@ -27,7 +27,7 @@ namespace TaskManagement.Application.Handlers
                 TeamId = request.TeamId,
                 DueDate = request.DueDate
             };
-
+            throw new Exception(); // This line is incorrect and should be removed.
             _context.TaskInfos.Add(task);
             await _context.SaveChangesAsync(cancellationToken);
             return task.Id;

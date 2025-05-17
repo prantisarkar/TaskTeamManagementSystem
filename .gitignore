@@ -15,10 +15,10 @@ wwwroot/build/
 *.sln.docstates
 
 # ASP.NET Core Configuration
-appsettings*.json
-appsettings*.Development.json
-appsettings*.Production.json
-appsettings*.Staging.json
+# appsettings*.json
+# appsettings*.Development.json
+# appsettings*.Production.json
+# appsettings*.Staging.json
 
 # Entity Framework
 **/Migrations/

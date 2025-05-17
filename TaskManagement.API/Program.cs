@@ -10,6 +10,7 @@ using Serilog;
 using Serilog.Extensions.Hosting;
 using TaskManagement.API.CustomMiddleware;
 using TaskManagement.Application;
+using TaskManagement.Application.Validators.User;
 using TaskManagement.DAL;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,7 +27,7 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers()
     .AddFluentValidation(config =>
     {
-        config.RegisterValidatorsFromAssemblyContaining<UserValidator>();
+        config.RegisterValidatorsFromAssemblyContaining<CreateUserCommandValidator>();
         config.RegisterValidatorsFromAssemblyContaining<TeamValidator>();
         config.RegisterValidatorsFromAssemblyContaining<TaskInfoValidator>();
     });
@@ -60,7 +61,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // MediatR (CQRS) Configuration
-builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(UserValidator).Assembly));
+builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(CreateUserCommandValidator).Assembly));
 
 // CORS Configuration
 builder.Services.AddCors(options =>
@@ -74,7 +75,7 @@ builder.Services.AddCors(options =>
 });
 
 // Register FluentValidation Validators
-builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateUserCommandValidator>();
 
 var app = builder.Build();
 

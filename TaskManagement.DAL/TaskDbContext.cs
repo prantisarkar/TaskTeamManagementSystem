@@ -17,10 +17,10 @@ public class TaskDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Seed Default Users
-        modelBuilder.Entity<User>().HasData(
-            new User { FullName = "Admin", Email = "admin@demo.com", Role = "Admin" },
-            new User { FullName = "Manager", Email = "manager@demo.com", Role = "Manager" },
-            new User { FullName = "Employee", Email = "employee@demo.com", Role = "Employee" }
-        );
+        //modelBuilder.Entity<User>().HasData(
+        //    new User { FullName = "Admin", Email = "admin@demo.com", Role = "Admin" },
+        //    new User { FullName = "Manager", Email = "manager@demo.com", Role = "Manager" },
+        //    new User { FullName = "Employee", Email = "employee@demo.com", Role = "Employee" }
+        //);
     }
 }

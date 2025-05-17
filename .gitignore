@@ -1,0 +1,97 @@
+# ASP.NET Core
+bin/
+obj/
+out/
+wwwroot/node_modules/
+wwwroot/lib/
+wwwroot/dist/
+wwwroot/build/
+.vscode/
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ASP.NET Core Configuration
+appsettings*.json
+appsettings*.Development.json
+appsettings*.Production.json
+appsettings*.Staging.json
+
+# Entity Framework
+**/Migrations/
+**/*.db
+**/*.mdf
+**/*.ldf
+**/*.sqlite
+
+# Resharper
+_ReSharper*/
+*.DotSettings.user
+
+# Rider
+.idea/
+
+# DotNet Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.dotCover
+*.log
+*.vspscc
+*.vssscc
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# NPM Packages
+node_modules/
+yarn-error.log
+yarn-debug.log*
+.pnpm-debug.log*
+
+# Logs
+*.log
+logs/
+*.log
+*.trace
+
+# Coverage Reports
+coverage/
+*.coverage
+*.coveragexml
+*.coveragejson
+
+# Test Results
+TestResults/
+*.trx
+*.cvr
+
+# Mac files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python files
+*.pyc
+__pycache__/
+
+# JetBrains Rider files
+.idea/
+*.sln.iml
+
+# Visual Studio Code
+.vscode/
+
+# Temporary files
+*.tmp
+*.temp

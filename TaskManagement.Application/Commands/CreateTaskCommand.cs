@@ -2,7 +2,7 @@
 
 namespace TaskManagement.Application.Commands;
 
-public class TaskCommand : IRequest<Guid>
+public class CreateTaskCommand : IRequest<Guid>
 {
     public string Title { get; set; }
     public string Description { get; set; }

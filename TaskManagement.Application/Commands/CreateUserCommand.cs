@@ -4,7 +4,7 @@ using System;
 
 namespace TaskManagement.Application.Commands
 {
-    public class UserCommand : IRequest<Guid>
+    public class CreateUserCommand : IRequest<Guid>
     {
         public string FullName { get; set; }
         public string Email { get; set; }

@@ -16,40 +16,14 @@ using TaskManagement.Application.Commands;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly TaskDbContext _context;
 
     private readonly IMediator _mediator;
-
-    public UserController(TaskDbContext context)
-    {
-        _context = context;
-    }
-
-    [HttpPost]
-    public IActionResult CreateUser([FromBody] User user)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        _context.Users.Add(user);
-        _context.SaveChanges();
-
-        return Ok(user);
-    }
 
     public UserController(IMediator mediator)
     {
         _mediator = mediator;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> CreateUser([FromBody] UserCommand command)
-    {
-        var result = await _mediator.Send(command);
-        return Ok(new { UserId = result });
-    }
 
     [HttpGet]
     public async Task<IActionResult> GetAllUsers()
@@ -58,4 +32,22 @@ public class UserController : ControllerBase
         var result = await _mediator.Send(query);
         return Ok(result);
     }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return Ok(new { UserId = result });
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserCommand command)
+    {
+        command.Id = id;
+        return await _mediator.Send(command) ? Ok() : NotFound();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+        => await _mediator.Send(new DeleteUserCommand { Id = id }) ? Ok() : NotFound();
 }

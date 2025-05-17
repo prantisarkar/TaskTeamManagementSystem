@@ -3,7 +3,7 @@ using TaskManagement.Application.Commands;
 
 namespace TaskManagement.Application.Validators
 {
-    public class UserCommandValidator : AbstractValidator<UserCommand>
+    public class UserCommandValidator : AbstractValidator<CreateUserCommand>
     {
         public UserCommandValidator()
         {

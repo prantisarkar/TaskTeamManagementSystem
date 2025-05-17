@@ -15,7 +15,7 @@ public class TeamController : ControllerBase
     private readonly IMediator _mediator;
 
     [HttpPost]
-    public async Task<IActionResult> CreateTeam([FromBody] TeamCommand command)
+    public async Task<IActionResult> CreateTeam([FromBody] CreateTeamCommand command)
     {
         var id = await _mediator.Send(command);
         return Ok(new { TeamId = id });

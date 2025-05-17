@@ -3,21 +3,19 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
-
+using Swashbuckle.AspNetCore.SwaggerGen;
 using TaskManagement.API.CustomMiddleware;
-using TaskManagement.DAL;
 using TaskManagement.Application.Handlers;
 using TaskManagement.Application.Validators;
-
-
+using TaskManagement.DAL;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Serilog
+// ==================== Configure Serilog ====================
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
@@ -25,14 +23,17 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// Add services to the container.
-builder.Services.AddControllers()
-    .AddFluentValidation(config =>
-    {
-        config.RegisterValidatorsFromAssemblyContaining<UserCommandValidator>();
-        config.RegisterValidatorsFromAssemblyContaining<TeamValidator>();
-        config.RegisterValidatorsFromAssemblyContaining<TaskInfoValidator>();
-    });
+// ==================== Add Services to Container ====================
+
+// Add Controllers
+builder.Services.AddControllers();
+
+// FluentValidation (Updated Approach)
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssemblyContaining<UserCommandValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<TeamValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<TaskInfoValidator>();
 
 // Database Configuration
 builder.Services.AddDbContext<TaskDbContext>(options =>
@@ -58,12 +59,45 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Swagger Configuration
+// ==================== Swagger Configuration ====================
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Task Management API",
+        Version = "v1",
+        Description = "API documentation for Task Management System"
+    });
+
+    // JWT Authentication Configuration for Swagger
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer' [space] and then your token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 // MediatR (CQRS) Configuration
-builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(UserCommandValidator).Assembly));
+builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(UserCommandHandler).Assembly));
 
 // CORS Configuration
 builder.Services.AddCors(options =>
@@ -76,63 +110,55 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Register FluentValidation Validators
-builder.Services.AddValidatorsFromAssemblyContaining<UserCommandValidator>();
-
-// MediatR
-builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(UserCommandHandler).Assembly));
-
-// FluentValidation
-builder.Services.AddValidatorsFromAssemblyContaining<UserCommandValidator>();
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Ensure logs directory exists
+var logsPath = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+if (!Directory.Exists(logsPath))
+{
+    Directory.CreateDirectory(logsPath);
+}
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-app.UseAuthorization();
-app.MapControllers();
-
-app.Run();
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
+// ==================== Middleware Configuration ====================
 
 // Use Static Files (e.g., for serving logs)
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "logs")),
+    FileProvider = new PhysicalFileProvider(logsPath),
     RequestPath = "/logs"
 });
 
+app.UseHttpsRedirection();
+
+// CORS Middleware
 app.UseCors("AllowAll");
 
+// Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
 // Global Exception Handling Middleware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-app.MapControllers();
+// Swagger Middleware
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Task Management API v1");
+        options.RoutePrefix = string.Empty; // Swagger at the root URL
+    });
+}
 
-// Apply Database Migrations (Auto-Migrate)
+// Database Migration
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<TaskDbContext>();
     dbContext.Database.Migrate();
 }
+
+// Map Controllers
+app.MapControllers();
 
 app.Run();

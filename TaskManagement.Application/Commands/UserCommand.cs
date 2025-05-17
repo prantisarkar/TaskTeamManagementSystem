@@ -2,9 +2,9 @@
 using TaskManagement.Domain;
 using System;
 
-namespace TaskManagement.Application.Commands.User
+namespace TaskManagement.Application.Commands
 {
-    public class CreateUserCommand : IRequest<Guid>
+    public class UserCommand : IRequest<Guid>
     {
         public string FullName { get; set; }
         public string Email { get; set; }

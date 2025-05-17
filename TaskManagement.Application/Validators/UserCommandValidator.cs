@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using TaskManagement.Application.Commands.User;
+using TaskManagement.Application.Commands;
 
 namespace TaskManagement.Application.Validators
 {
-    public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
+    public class UserCommandValidator : AbstractValidator<UserCommand>
     {
-        public CreateUserCommandValidator()
+        public UserCommandValidator()
         {
             RuleFor(x => x.FullName)
                 .NotEmpty().WithMessage("Full Name is required.")

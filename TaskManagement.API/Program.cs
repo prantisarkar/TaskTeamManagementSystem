@@ -3,15 +3,17 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using Serilog.Extensions.Hosting;
+
 using TaskManagement.API.CustomMiddleware;
-using TaskManagement.Application;
-using TaskManagement.Application.Validators.User;
 using TaskManagement.DAL;
+using TaskManagement.Application.Handlers;
+using TaskManagement.Application.Validators;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +29,7 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers()
     .AddFluentValidation(config =>
     {
-        config.RegisterValidatorsFromAssemblyContaining<CreateUserCommandValidator>();
+        config.RegisterValidatorsFromAssemblyContaining<UserCommandValidator>();
         config.RegisterValidatorsFromAssemblyContaining<TeamValidator>();
         config.RegisterValidatorsFromAssemblyContaining<TaskInfoValidator>();
     });
@@ -61,7 +63,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // MediatR (CQRS) Configuration
-builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(CreateUserCommandValidator).Assembly));
+builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(UserCommandValidator).Assembly));
 
 // CORS Configuration
 builder.Services.AddCors(options =>
@@ -75,10 +77,31 @@ builder.Services.AddCors(options =>
 });
 
 // Register FluentValidation Validators
-builder.Services.AddValidatorsFromAssemblyContaining<CreateUserCommandValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<UserCommandValidator>();
+
+// MediatR
+builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(UserCommandHandler).Assembly));
+
+// FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<UserCommandValidator>();
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
+
+app.Run();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

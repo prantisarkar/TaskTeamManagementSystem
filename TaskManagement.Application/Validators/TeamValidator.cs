@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using TaskManagement.Domain;
 
-namespace TaskManagement.Application;
+namespace TaskManagement.Application.Validators;
 
 public class TeamValidator : AbstractValidator<Team>
 {
